@@ -16,8 +16,6 @@ import stem.descriptor.remote
 from random import choice
 import string
 
-from config import TOR_CONTROL_PORT, TOR_PORT, TOR_CONTROL_PASSWORD
-
 from dotenv import load_dotenv 
 from pathlib import Path
 

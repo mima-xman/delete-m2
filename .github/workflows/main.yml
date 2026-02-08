@@ -18,6 +18,11 @@ on:
         required: true
         default: '5'
         type: number
+      use_tor:
+        description: 'Use Tor'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   test:
@@ -41,6 +46,22 @@ jobs:
           pip install git+https://${{ secrets.PLAYWRIGHT_HELPER_GITHUB_TOKEN }}@github.com/za-zo/python-package--playwright-helper.git
           playwright install chrome
           sudo apt-get install -y xvfb
+      
+      - name: Install Tor
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tor
+      
+      - name: Configure Tor
+        run: |
+          echo "ControlPort 9151" | sudo tee -a /etc/tor/torrc
+          echo "SocksPort 9150" | sudo tee -a /etc/tor/torrc
+          echo "CookieAuthentication 0" | sudo tee -a /etc/tor/torrc
+          echo "Log notice file /var/log/tor/log" | sudo tee -a /etc/tor/torrc
+          sudo systemctl restart tor@default
+          sleep 10
+          sudo ss -tulpn | grep tor
+          sudo systemctl status tor@default --no-pager
 
       - name: Ensure Chrome is installed
         run: |
@@ -58,6 +79,9 @@ jobs:
           NUMBER_OF_REELS_TO_WATCH: ${{ github.event.inputs.number_of_reels_to_watch }}
           WORKFLOW_ID: ${{ github.run_number }}
           BROWSER_PATH: "/usr/bin/google-chrome"
+          USE_TOR: ${{ github.event.inputs.use_tor }}
+          TOR_PORT: 9150
+          TOR_CONTROL_PORT: 9151
           PYTHONUNBUFFERED: "1"
           CI: "true"
         run: |

@@ -1,0 +1,19 @@
+# Core dependencies
+requests
+PySocks
+playwright
+python-dotenv
+
+# Tor network support
+stem
+
+# Email service dependencies
+fake-useragent
+cloudscraper
+curl_cffi
+
+# 2FA support
+pyotp
+
+# Database
+pymongo

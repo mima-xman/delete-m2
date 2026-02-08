@@ -8,10 +8,12 @@ from os import makedirs, getenv
 from utils import get_2fa_code
 
 
+IS_CI = getenv("CI", "false").lower() == "true"
 # =====================================
 # Browser settings
 # =====================================
-HEADLESS = False
+ASK_BEFORE_CLOSE_BROWSER = getenv("ASK_BEFORE_CLOSE_BROWSER", "false").lower() == "true"
+HEADLESS = getenv("HEADLESS", "true").lower() == "true"
 ARGS = [
     "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36",
     # Set language
@@ -21,7 +23,6 @@ VIEWPORT = {
     "width": 1080,
     "height": 720
 }
-ASK_BEFORE_CLOSE_BROWSER = True
 # Browser executable paths
 BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 GOOGLE_CHROME_PATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -470,8 +471,9 @@ class Instagram:
                 # Logout process
                 # --------------------------
 
-                # Wait for user input to continue with logout
-                input("Press Enter to continue with logout...")
+                # Skip logout confirmation in CI environment
+                if not IS_CI:
+                    input("Press Enter to continue with logout...")
 
                 # Logout
                 if not self._logout():
@@ -502,7 +504,7 @@ class Instagram:
             finally:
                 # Close browser
                 if self.browser:
-                    if ASK_BEFORE_CLOSE_BROWSER:
+                    if ASK_BEFORE_CLOSE_BROWSER and not IS_CI:
                         input("Press Enter to close the browser...")
                     self.browser.close()
                     self.browser = None

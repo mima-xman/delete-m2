@@ -5,7 +5,7 @@ from random import randint
 from os.path import exists
 from os import makedirs, getenv
 
-from utils import get_2fa_code
+from utils import get_2fa_code, renew_tor
 
 
 IS_CI = getenv("CI", "false").lower() == "true"
@@ -13,7 +13,7 @@ IS_CI = getenv("CI", "false").lower() == "true"
 # Tor settings
 # =====================================
 USE_TOR = getenv("USE_TOR", "false").lower() == "true"
-TOR_PORT = getenv("TOR_PORT", "9150")
+TOR_PORT = int(getenv("TOR_PORT", "9150"))
 TOR_PROXY = {
     "server": f"socks5://127.0.0.1:{TOR_PORT}"
 }
@@ -56,7 +56,8 @@ except Exception as e:
 HOME_PAGE_URL = "https://www.instagram.com"
 REELS_PAGE_URL = "https://www.instagram.com/reels"
 NUMBER_OF_REELS_TO_WATCH = int(getenv("NUMBER_OF_REELS_TO_WATCH", 5))
-MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED = 3
+MAX_LOGIN_ATTEMPTS = int(getenv("MAX_LOGIN_ATTEMPTS", 5))
+MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED = int(getenv("MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED", 5))
 SELECTORS = {
     "LOGIN": {
         "ALLOW_ALL_COOKIES_BUTTON": "button:has-text('Allow all cookies')",
@@ -155,18 +156,18 @@ class Instagram:
         if not result or result.get("success", False) is False:
             print("Login type 1 failed")
             return False
-
-        # Check for password error
-        if self.helper.check_element_exists(selectors["PASSWORD_ERROR"], retries=1):
-            print("Login type 1 failed: Incorrect password")
-            return False
-        print("Password error not found")
         
         # Check for error message
         if self.helper.check_element_exists(selectors["ERROR_MESSAGE"], retries=1):
             print("Login type 1 failed: Incorrect username or password")
             return False
         print("Error message not found")
+
+        # Check for password error
+        if self.helper.check_element_exists(selectors["PASSWORD_ERROR"], retries=1):
+            print("Login type 1 failed: Incorrect password")
+            return False
+        print("Password error not found")
         
         print("Login type 1 succeeded")
         return True
@@ -470,9 +471,21 @@ class Instagram:
                 # --------------------------
 
                 # Login
-                if not self._login():
-                    self._take_screenshot()
-                    return False
+                for login_attempt in range(MAX_LOGIN_ATTEMPTS):
+                    print(f"Attempt {login_attempt + 1} to login")
+
+                    if not self._login():
+                        self._take_screenshot()
+
+                        # Renew Tor if not last attempt
+                        if login_attempt < MAX_LOGIN_ATTEMPTS - 1 and USE_TOR:
+                            tor_renewed, ip = renew_tor()
+                            if not tor_renewed:
+                                return False
+                        else:
+                            return False
+                    else:
+                        break
 
                 self._take_screenshot()
                 

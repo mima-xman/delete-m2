@@ -18,6 +18,16 @@ on:
         required: true
         default: '5'
         type: number
+      max_login_attempts:
+        description: 'Max Login Attempts'
+        required: true
+        default: '5'
+        type: number
+      max_attempts_to_mark_reel_as_watched:
+        description: 'Max Attempts to Mark Reel as Watched'
+        required: true
+        default: '5'
+        type: number
       use_tor:
         description: 'Use Tor'
         required: true
@@ -79,6 +89,8 @@ jobs:
           INSTAGRAM_PASSWORD: ${{ github.event.inputs.instagram_password }}
           INSTAGRAM_2FA_CODE: ${{ github.event.inputs.instagram_2fa_code }}
           NUMBER_OF_REELS_TO_WATCH: ${{ github.event.inputs.number_of_reels_to_watch }}
+          MAX_LOGIN_ATTEMPTS: ${{ github.event.inputs.max_login_attempts }}
+          MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED: ${{ github.event.inputs.max_attempts_to_mark_reel_as_watched }}
           WORKFLOW_ID: ${{ github.run_number }}
           BROWSER_PATH: "/usr/bin/google-chrome"
           USE_TOR: ${{ github.event.inputs.use_tor }}

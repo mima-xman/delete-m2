@@ -52,7 +52,12 @@ SELECTORS = {
         "TYPE_1": {
             "USERNAME_FIELD": "input[name='email'], input:has(+ label:has-text('Mobile number, username or email'))",
             "PASSWORD_FIELD": "input[name='pass'], input:has(+ label:has-text('Password'))",
+            "PASSWORD_ERROR": "span:has-text('The password you entered is incorrect.')",
             "LOGIN_BUTTON": "div[tabindex='0'][role='button']:has(span:has-text('Log in'))",
+            "ERROR_MESSAGE": (
+                "span:has-text('The login information you entered is incorrect.')"
+                ", span:has(a:has-text('Find your account and log in.'))"
+            ),
         },
     },
     "COMPLETE_2FA": {
@@ -139,6 +144,18 @@ class Instagram:
         if not result or result.get("success", False) is False:
             print("Login type 1 failed")
             return False
+
+        # Check for password error
+        if self.helper.check_element_exists(selectors["PASSWORD_ERROR"]):
+            print("Login type 1 failed: Incorrect password")
+            return False
+        print("Password error not found")
+        
+        # Check for error message
+        if self.helper.check_element_exists(selectors["ERROR_MESSAGE"]):
+            print("Login type 1 failed: Incorrect username or password")
+            return False
+        print("Error message not found")
         
         print("Login type 1 succeeded")
         return True

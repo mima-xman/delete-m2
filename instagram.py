@@ -157,13 +157,13 @@ class Instagram:
             return False
 
         # Check for password error
-        if self.helper.check_element_exists(selectors["PASSWORD_ERROR"]):
+        if self.helper.check_element_exists(selectors["PASSWORD_ERROR"], retries=1):
             print("Login type 1 failed: Incorrect password")
             return False
         print("Password error not found")
         
         # Check for error message
-        if self.helper.check_element_exists(selectors["ERROR_MESSAGE"]):
+        if self.helper.check_element_exists(selectors["ERROR_MESSAGE"], retries=1):
             print("Login type 1 failed: Incorrect username or password")
             return False
         print("Error message not found")

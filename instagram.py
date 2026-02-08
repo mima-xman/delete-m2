@@ -560,9 +560,9 @@ class Instagram:
 
 if __name__ == "__main__":
     # Replace with your Instagram credentials
-    username = getenv("INSTAGRAM_USERNAME")
-    password = getenv("INSTAGRAM_PASSWORD")
-    two_factor_code = getenv("INSTAGRAM_2FA_CODE")
+    username = getenv("INSTAGRAM_USERNAME").strip()
+    password = getenv("INSTAGRAM_PASSWORD").strip()
+    two_factor_code = getenv("INSTAGRAM_2FA_CODE").strip()
 
     # Create an instance of Instagram
     instagram = Instagram(username, password, two_factor_code)

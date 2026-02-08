@@ -48,11 +48,13 @@ jobs:
           sudo apt-get install -y xvfb
       
       - name: Install Tor
+        if: ${{ github.event.inputs.use_tor == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y tor
       
       - name: Configure Tor
+        if: ${{ github.event.inputs.use_tor == 'true' }}
         run: |
           echo "ControlPort 9151" | sudo tee -a /etc/tor/torrc
           echo "SocksPort 9150" | sudo tee -a /etc/tor/torrc

@@ -1,0 +1,76 @@
+name: Test Instagram
+
+on:
+  workflow_dispatch:
+    inputs:
+      instagram_username:
+        description: 'Instagram Username'
+        required: true
+        default: 'kami_lialotfi'
+      instagram_password:
+        description: 'Instagram Password'
+        required: true
+      instagram_2fa_code:
+        description: 'Instagram 2FA Code'
+        required: true
+      number_of_reels_to_watch:
+        description: 'Number of Reels to Watch'
+        required: true
+        default: '5'
+        type: number
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test Instance
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install git+https://${{ secrets.PLAYWRIGHT_HELPER_GITHUB_TOKEN }}@github.com/za-zo/python-package--playwright-helper.git
+          playwright install chrome
+          sudo apt-get install -y xvfb
+
+      - name: Ensure Chrome is installed
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          ls -l /usr/bin/google-chrome
+
+      - name: Run Python Code
+        env:
+          INSTAGRAM_USERNAME: ${{ github.event.inputs.instagram_username }}
+          INSTAGRAM_PASSWORD: ${{ github.event.inputs.instagram_password }}
+          INSTAGRAM_2FA_CODE: ${{ github.event.inputs.instagram_2fa_code }}
+          NUMBER_OF_REELS_TO_WATCH: ${{ github.event.inputs.number_of_reels_to_watch }}
+          WORKFLOW_ID: ${{ github.run_number }}
+          BROWSER_PATH: "/usr/bin/google-chrome"
+          PYTHONUNBUFFERED: "1"
+          CI: "true"
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" python instagram.py
+      
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-artifacts
+          path: |
+            instagram_outputs/
+            *.png
+            *.html
+            *.log
+          retention-days: 5

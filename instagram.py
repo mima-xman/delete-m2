@@ -23,6 +23,12 @@ VIEWPORT = {
     "width": 1080,
     "height": 720
 }
+# Tor settings
+USE_TOR = getenv("USE_TOR", "false").lower() == "true"
+TOR_PORT = getenv("TOR_PORT", "9150")
+TOR_PROXY = {
+    "server": f"socks5://127.0.0.1:{TOR_PORT}"
+} if USE_TOR else None
 # Browser executable paths
 BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 GOOGLE_CHROME_PATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -45,7 +51,7 @@ except Exception as e:
 # =====================================
 HOME_PAGE_URL = "https://www.instagram.com"
 REELS_PAGE_URL = "https://www.instagram.com/reels"
-NUMBER_OF_REELS_TO_WATCH = getenv("NUMBER_OF_REELS_TO_WATCH", 5)
+NUMBER_OF_REELS_TO_WATCH = int(getenv("NUMBER_OF_REELS_TO_WATCH", 5))
 MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED = 3
 SELECTORS = {
     "LOGIN": {

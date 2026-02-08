@@ -10,6 +10,15 @@ from utils import get_2fa_code
 
 IS_CI = getenv("CI", "false").lower() == "true"
 # =====================================
+# Tor settings
+# =====================================
+USE_TOR = getenv("USE_TOR", "false").lower() == "true"
+TOR_PORT = getenv("TOR_PORT", "9150")
+TOR_PROXY = {
+    "server": f"socks5://127.0.0.1:{TOR_PORT}"
+}
+
+# =====================================
 # Browser settings
 # =====================================
 ASK_BEFORE_CLOSE_BROWSER = getenv("ASK_BEFORE_CLOSE_BROWSER", "false").lower() == "true"
@@ -23,12 +32,7 @@ VIEWPORT = {
     "width": 1080,
     "height": 720
 }
-# Tor settings
-USE_TOR = getenv("USE_TOR", "false").lower() == "true"
-TOR_PORT = getenv("TOR_PORT", "9150")
-TOR_PROXY = {
-    "server": f"socks5://127.0.0.1:{TOR_PORT}"
-} if USE_TOR else None
+PROXY = TOR_PROXY if USE_TOR else None
 # Browser executable paths
 BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 GOOGLE_CHROME_PATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -55,6 +59,7 @@ NUMBER_OF_REELS_TO_WATCH = int(getenv("NUMBER_OF_REELS_TO_WATCH", 5))
 MAX_ATTEMPTS_TO_MARK_REEL_AS_WATCHED = 3
 SELECTORS = {
     "LOGIN": {
+        "ALLOW_ALL_COOKIES_BUTTON": "button:has-text('Allow all cookies')",
         "TYPE_1": {
             "USERNAME_FIELD": "input[name='email'], input:has(+ label:has-text('Mobile number, username or email'))",
             "PASSWORD_FIELD": "input[name='pass'], input:has(+ label:has-text('Password'))",
@@ -180,6 +185,12 @@ class Instagram:
                 "name": "Wait for load",
                 "type": "wait_network",
                 "timeout": 10000,
+                "continue_on_failure": True,
+            },
+            {
+                "name": "Click on 'Allow all cookies' button",
+                "type": "click",
+                "selector": SELECTORS["LOGIN"]["ALLOW_ALL_COOKIES_BUTTON"],
                 "continue_on_failure": True,
             }
         ]
@@ -436,6 +447,7 @@ class Instagram:
                     headless=HEADLESS,
                     args=ARGS,
                     executable_path=BROWSER_PATH,
+                    proxy=PROXY
                 )
 
                 # Open new page

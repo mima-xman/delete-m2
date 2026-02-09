@@ -24,9 +24,19 @@ TOR_PROXY = {
 ASK_BEFORE_CLOSE_BROWSER = getenv("ASK_BEFORE_CLOSE_BROWSER", "false").lower() == "true"
 HEADLESS = getenv("HEADLESS", "true").lower() == "true"
 ARGS = [
-    "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36",
+    "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.109 Safari/537.36",
     # Set language
-    "--lang=en-US"
+    "--lang=en-US",
+    "--disable-blink-features=AutomationControlled",
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-web-security",
+    "--disable-features=VizDisplayCompositor",
+    "--disable-ipc-flooding-protection",
+    "--disable-background-timer-throttling",
+    "--disable-renderer-backgrounding",
+    "--disable-backgrounding-occluded-windows"
 ]
 VIEWPORT = {
     "width": 1080,
@@ -132,6 +142,11 @@ class Instagram:
         print("Using login type 1...")
         selectors = SELECTORS["LOGIN"]["TYPE_1"]
 
+        # Add debugging info
+        print(f"Attempting to log in with username: {self.username}")
+        if IS_CI:
+            print("Running in CI environment")
+        
         login_type_1_actions = [
             {
                 "name": "Fill username",
@@ -448,7 +463,8 @@ class Instagram:
                     headless=HEADLESS,
                     args=ARGS,
                     executable_path=BROWSER_PATH,
-                    proxy=PROXY
+                    proxy=PROXY,
+                    slow_mo=100  # Add slight delay to actions to seem more human-like
                 )
 
                 # Open new page
@@ -485,6 +501,7 @@ class Instagram:
                         else:
                             return False
                     else:
+                        print(f"Login successful on attempt {login_attempt + 1}")
                         break
 
                 self._take_screenshot()

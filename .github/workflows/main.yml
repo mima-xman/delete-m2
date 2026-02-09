@@ -99,7 +99,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
           CI: "true"
         run: |
-          py instagram.py
+          python instagram.py
       
       - name: Upload Artifacts
         if: always()

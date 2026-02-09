@@ -127,9 +127,10 @@ class Instagram:
     
     def _take_screenshot(self):
         try:
-            self.page.screenshot(path=f"{OUTPUT_FOLDER}/screenshot_{self.screenshot_number}.png")
+            image_path = f"{OUTPUT_FOLDER}/screenshot_{self.screenshot_number}.png"
+            self.page.screenshot(path=image_path)
             self.screenshot_number += 1
-            print("Screenshot taken successfully.")
+            print(f"Screenshot taken successfully: '{image_path}'")
         except Exception as e:
             print(f"An error occurred while taking a screenshot: {e}")
 
